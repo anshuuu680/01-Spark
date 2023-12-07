@@ -11,7 +11,8 @@ export default {
         lightColorBg: '#AEC3AE',
         taskCardColor: '#000',
         taskListBg: '#191A1F',
-        textColor:'#a1c6ea'
+        textColor:'#a1c6ea',
+        feedBgColor:'#0B1416'
       },
       fontFamily: {
         PrimaryFont: ['Inter', 'sans-serif'],

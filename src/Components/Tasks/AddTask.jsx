@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { nanoid } from 'nanoid';
-import { useSelector, useDispatch } from 'react-redux';
-import { addTask, selectDayTasks } from '../../Features/Tasks/DayTaskSlice';
-import { AddInTaskList } from '../../Features/Tasks/TaskListSlice';
 import { useNavigate } from 'react-router-dom';
-import AddTaskListItem from './AddTaskListItem';
-import {day,date} from '../DateDay';
+import { useSelector, useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
+import axios from 'axios';
+
+import AddTaskListItem from './AddTaskListItem';
+import { addTask, selectDayTasks } from '../../Features/Tasks/DayTaskSlice';
+import { day, date } from '../DateDay';
 
 const AddTask = () => {
+    const inputRef = useRef(null);
     const dispatch = useDispatch();
     const dayTasks = useSelector(selectDayTasks);
     const navigate = useNavigate();
@@ -27,24 +29,31 @@ const AddTask = () => {
             setTask('');
         }
     };
+    
 
     const AddHandler = () => {
 
-        if(dayTasks.length){
-            dispatch(AddInTaskList({ date, day, dayTasks }));
+        axios.post('/api/savetask', { dayTasks, date, day })
+            .then(response => {
+                console.log('Response from backend:', response.data);
+            })
+            .catch(error => {
+                console.error('Error sending data to backend:', error);
+            });
+
+
+
+        if (dayTasks.length) {
             navigate('/tasks');
-        }else{
-            toast.error('Add task!',{
+        } else {
+            toast.error('Add task!', {
                 position: toast.POSITION.TOP_RIGHT,
-                autoClose: 500 
-              });
+                autoClose: 500
+            });
 
         }
     };
 
-   
-
-    
 
     return (
         <section className="addtask w-full h-full ">
@@ -53,8 +62,8 @@ const AddTask = () => {
             </div>
             <div className="add-task-bottom w-full h-full p-10 flex justify-center bg-slate-900">
                 <div className="add-task-card w-1/3 h-fit flex flex-col items-center bg-black">
-                    <form onSubmit={SubmitHandler} className="flex">
-                        <input
+                    <form onSubmit={SubmitHandler} method='post' className="flex">
+                        <input ref={inputRef}
                             className="px-2 outline-none border-none w-80 rounded-sm text-white text-base bg-gray-700"
                             type="text"
                             placeholder="Walk the dog"
@@ -64,8 +73,8 @@ const AddTask = () => {
                         <button className="bg-green-900 text-white p-2 px-5">+ Add</button>
                     </form>
                     <div className="add-task-lists w-full p-2 min-h-fit text-white">
-                        {dayTasks.map(({ id, taskName }) => (
-                           <AddTaskListItem key={id} id={id} taskName={taskName}/>
+                        {dayTasks.map((obj) => (
+                            <AddTaskListItem key={obj.id} {...obj} elem={inputRef.current} />
                         ))}
                     </div>
                     <div className="add-task-card-bottom w-full flex justify-end p-2">

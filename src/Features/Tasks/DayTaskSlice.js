@@ -26,15 +26,13 @@ const dayTaskSlice = createSlice({
       if (taskToUpdate) {
         taskToUpdate.isCompleted = true;
       }
-
-
-      
-      
       toast.success("Task completed!", {
         position: toast.POSITION.TOP_RIGHT,
         autoClose: 500,
       });
     },
+
+    
 
     updateTask: (state, action) => {
       const { taskId, newTask } = action.payload;

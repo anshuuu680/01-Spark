@@ -1,7 +1,7 @@
 import CircularProgressBar from "./ProgressBar"
 
 
-const TaskCard = ({ id, date, day, tasksArray }, index) => {
+const TaskCard = ({ id, date, day, tasks }, index) => {
 
 
     return (
@@ -14,7 +14,7 @@ const TaskCard = ({ id, date, day, tasksArray }, index) => {
                 </div>
             </div>
             <div className="task-card-lower w-full h-full p-4 text-xl text-white">
-                {tasksArray.map((obj, index) => (
+                {tasks.map((obj, index) => (
                     <li className="flex w-full justify-between p-1 pr-6 my-1 cursor-pointer" key={index}>
                         {obj.taskName}
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke='currentColor' strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-neutral-600">
@@ -27,4 +27,4 @@ const TaskCard = ({ id, date, day, tasksArray }, index) => {
         </div>
     )
 }
-export default TaskCard
+export default TaskCard;

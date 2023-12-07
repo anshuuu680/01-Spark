@@ -4,48 +4,67 @@ import { FaPlusCircle } from 'react-icons/fa';
 import { MdEdit } from 'react-icons/md';
 import CircularProgressBar from "./ProgressBar";
 import { useDispatch, useSelector } from "react-redux";
-import { selectTasks } from "../../Features/Tasks/TaskListSlice";
-import { AddInTaskList,updateTaskCompletion } from '../../Features/Tasks/TaskListSlice';
 import TaskCard from './TaskCard';
 import { day, date } from '../DateDay';
 import { updateCompletion, selectDayTasks } from "../../Features/Tasks/DayTaskSlice";
+import axios from "axios";
 
 
 
 
 const Task = () => {
+
+    const [all, setAll] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [completionPercentage, setCompletionPercentage] = useState(0);
     const [created, setCreated] = useState(false);
-    const TaskList = useSelector(selectTasks);
     const dayTasks = useSelector(selectDayTasks);
 
+    
+
+
+    const UpdateHandler = async (taskId) => {
+        dispatch(updateCompletion(taskId));
+    }
+
 
     useEffect(() => {
-        setCreated(TaskList.length > 0 && TaskList[0]?.date === date);
-    }, [TaskList, date]);
+        const tasks = async () => {
+            try {
+                const response = await axios.get('/api/alltasks');
+                if (response?.data) {
+                    setAll(response.data);
+                    setIsLoading(true);
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+        tasks();
+    }, [dayTasks]);
+
 
 
     useEffect(() => {
-        if (dayTasks.length != 0) {
-            const integerPercentage = Math.floor((TaskList[0]?.completedTasks / dayTasks.length) * 100);
-            setCompletionPercentage(integerPercentage);
-            dispatch(AddInTaskList({ date, day, dayTasks }));
+
+        const getData = async () => {
+            const { data } = await axios.post('/api/check', { date });
+            setCreated(data.flag);
+            const response = await axios.post('/api/taskcompletion', { taskid: "efwlu3GY7lc1_v8iOZTlc" });
         }
 
-        console.log(TaskList[0]?.completedTasks);
+        getData();
+    }, []);
 
-    }, [dayTasks,TaskList]);
 
 
-    const UpdateHandler = (taskId)=>{
-        dispatch(updateCompletion(taskId));
-        
-        dispatch(updateTaskCompletion(taskId));
 
-    }
-    
+
+
 
 
 
@@ -53,7 +72,7 @@ const Task = () => {
 
 
     return (
-        <section className="task bg-black text-white h-full">
+        <section className="task bg-black text-white h-full m-auto">
             <div className="task-upper w-full h-52"></div>
             <div className="task-lower w-full h-fit bg-taskListBg flex flex-col items-center p-5">
                 {created ? (
@@ -67,7 +86,7 @@ const Task = () => {
                             <CircularProgressBar percentage={completionPercentage} />
                         </div>
                         <div className="today-tasks-lower pt-2 text-xl">
-                            {TaskList[0]?.tasksArray?.map((obj, index) => (
+                            {all[0]?.tasks?.map((obj, index) => (
                                 <li className="flex w-full justify-between p-1 pr-6 my-1 cursor-pointer" key={index}>
                                     {obj.taskName}
                                     <svg
@@ -95,7 +114,7 @@ const Task = () => {
                 ) : (
                     <div onClick={() => navigate('/tasks/addtask')} className="w-1/4 flex h-80 bg-black rounded-lg px-4 cursor-pointer">
                         <div
-                            className="add-card w-80 h-80 bg-black text-white flex flex-col gap-4 justify-center items-center rounded-lg shadow-md cursor-pointer bg-taskCardColor"
+                            className="add-card w-80 h-80  text-white flex flex-col gap-4 justify-center items-center rounded-lg shadow-md cursor-pointer bg-taskCardColor"
                         >
                             <FaPlusCircle className="text-4xl" />
                             <h1 className="text-lg text-center font-semibold text-textColor">So what's your <br /> today's plan?</h1>
@@ -103,7 +122,7 @@ const Task = () => {
                     </div>
                 )}
                 <div className="tasks-list w-full h-fit grid grid-cols-2 gap-5 p-10">
-                    {TaskList.map((task) => (
+                    {all.map((task) => (
                         <TaskCard key={task.id} {...task} />
                     ))}
                 </div>
